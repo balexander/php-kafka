@@ -10,16 +10,13 @@
     }
   ],
   "scripts": {
-    "produce": "docker-compose run php php php/Producer/produce.php",
-    "consume": "docker-compose run php php php/Consumer/consume.php"
+    "produce": "docker-compose run php php App/produce.php",
+    "consume": "docker-compose run php php App/consume.php"
   },
   "require": {
     "kwn/php-rdkafka-stubs": "dev-master",
     "flix-tech/avro-serde-php": "^1.3",
-    "fzaninotto/faker": "^1.8",
-    "hassankhan/config": "^2.0",
-    "symfony/yaml": "^4.2",
-    "nmred/kafka-php": "0.2.*"
+    "fzaninotto/faker": "^1.8"
   },
   "autoload": {
     "psr-4": {
