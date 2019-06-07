@@ -11,17 +11,14 @@ use RdKafka\KafkaConsumer;
 class Consumer
 {
 
-    private $config;
-
     private $serializer;
 
     private $kafkaConsumer;
 
     public function __construct(ConsumerConfig $config, RecordSerializer $serializer = null)
     {
-        $this->config = $config;
         $this->serializer = $serializer ?? (new SerializerFactory($config))->instance();
-
+        $this->kafkaConsumer = new KafkaConsumer($config);
     }
 
     /**
@@ -32,18 +29,14 @@ class Consumer
      * @throws \FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException
      * @throws \RdKafka\Exception
      */
-    public function consume(array $topics, BaseRecord $record, callable $callback): void
+    public function consume(array $topics, BaseRecord $record, callable $callback = null): void
     {
-
-        $this->kafkaConsumer = new KafkaConsumer($this->config);
         $this->kafkaConsumer->subscribe($topics);
 
         while (true) {
             $message = $this->kafkaConsumer->consume(100000);
             switch ($message->err) {
                 case RD_KAFKA_RESP_ERR_NO_ERROR:
-                    print "\nPARTITION: " . $message->partition;
-                    print "\nCONSUMING\n\n";
                     $decoded = $this->serializer->decodeMessage($message->payload);
                     $record->decode($decoded);
                     $callback($record);
@@ -59,5 +52,24 @@ class Consumer
                     break;
             }
         }
+    }
+
+    private function determineMaxPartitions(array $topics = null)
+    {
+        $metaData = $this->kafkaConsumer->getMetadata(false, null, 12000);
+        $allTopics = $metaData->getTopics();
+        $max = 1;
+        foreach ($allTopics as $topic) {
+            /** @var \RdKafka\Metadata\Topic $topic */
+            if (!in_array($topic->getTopic(), $topics)) {
+                continue;
+            }
+            $numPartitions = count($topic->getPartitions());
+            if ($numPartitions > $max) {
+                $max = $numPartitions;
+            }
+        }
+        return $max;
+
     }
 }

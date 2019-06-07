@@ -21,9 +21,7 @@ class ConsumerConfig extends Config
 
     private $timeout;
 
-    private $topicConfig;
-
-    private $numConsumers = 1;
+    private $groupId;
 
     public function __construct(string $schemaRegistryUri, string $brokers, TopicConf $defaultTopicConfig = null)
     {
@@ -32,11 +30,6 @@ class ConsumerConfig extends Config
         $defaultTopicConfig = $defaultTopicConfig ?? $this->createDefaultTopicConfig();
         $this->setDefaultTopicConf($defaultTopicConfig);
     }
-
-    //    public function getPartition(): int
-    //    {
-    //        return $this->partition ?? static::DEFAULT_PARTITION;
-    //    }
 
     public function setPartition(int $partition)
     {
@@ -66,19 +59,8 @@ class ConsumerConfig extends Config
         return $this;
     }
 
-    public function getTopicConfig(): TopicConf
-    {
-        // todo -- make sane default topic config
-        return $this->topicConfig ?? $this->createDefaultTopicConfig();
-    }
-
-    public function setTopicConfig($topicConfig)
-    {
-        $this->topicConfig = $topicConfig;
-        return $this;
-    }
-
-    // todo -- movethis
+    //    public function
+    // todo -- move  this
     private function createDefaultTopicConfig(): TopicConf
     {
         $topicConfig = new TopicConf();
@@ -86,9 +68,16 @@ class ConsumerConfig extends Config
         return $topicConfig;
     }
 
-    public function getNumConsumers()
+    public function getGroupId(): string
     {
-        return $this->numConsumers;
+        return $this->groupId;
+    }
+
+    public function setGroupId(string $groupId)
+    {
+        $this->groupId = $groupId;
+        $this->set('group.id', $groupId);
+        return $this;
     }
 
 }

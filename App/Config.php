@@ -13,9 +13,9 @@ class Config extends KafkaConfig
 
     protected $kafkaConfig;
 
-    protected $registerMissingSchemas = false;
+    protected $shouldRegisterMissingSchemas = false;
 
-    protected $registerMissingSubjects = false;
+    protected $shouldRegisterMissingSubjects = false;
 
     // todo -- option to set default brokers using metadata.broker.list
     public function __construct(string $schemaRegistryUri, string $brokers)
@@ -23,7 +23,17 @@ class Config extends KafkaConfig
         //Ignore IDE squiggly, there is a constructor its just not int he stub extension
         parent::__construct();
         $this->schemaRegistryUri = $schemaRegistryUri;
-        $this->brokers = $brokers;
+        $this->setDefaultBrokers($brokers);
+
+        // https://github.com/arnaud-lb/php-rdkafka#performance--low-latency-settings
+        $this->set('socket.timeout.ms', 50);
+        if (function_exists('pcntl_sigprocmask')) {
+            pcntl_sigprocmask(SIG_BLOCK, [SIGIO]);
+            $this->set('internal.termination.signal', SIGIO);
+        } else {
+            $this->set('queue.buffering.max.ms', 1);
+        }
+
     }
 
     public function getSchemaRegistryUri(): string
@@ -36,13 +46,36 @@ class Config extends KafkaConfig
         return $this->brokers;
     }
 
-    public function shouldRegisterMissingSchemas(bool $registerMissingSchemas = null): bool
+    private function setDefaultBrokers(string $brokers): void
     {
-        return $this->registerMissingSchemas = $registerMissingSchemas ?? $this->registerMissingSchemas;
+        $this->set('metadata.broker.list', $brokers);
     }
 
-    public function shouldRegisterMissingSubjects(bool $registerMissingSubjects = null): bool
+    public function shouldRegisterMissingSchemas(): bool
     {
-        return $this->registerMissingSubjects = $registerMissingSubjects ?? $this->registerMissingSubjects;
+        return $this->shouldRegisterMissingSchemas;
+    }
+
+    public function setShouldRegisterMissingSchemas(bool $registerMissingSchemas): Config
+    {
+        $this->shouldRegisterMissingSchemas = $registerMissingSchemas;
+        return $this;
+    }
+
+    public function shouldRegisterMissingSubjects(): bool
+    {
+        return $this->shouldRegisterMissingSubjects;
+    }
+
+    public function setShouldRegisterMissingSubjects(bool $registerMissingSubjects): Config
+    {
+        $this->shouldRegisterMissingSubjects = $registerMissingSubjects;
+        return $this;
+    }
+
+    public function set($name, $value): Config
+    {
+        parent::set($name, $value);
+        return $this;
     }
 }

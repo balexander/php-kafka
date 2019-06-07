@@ -6,12 +6,12 @@ use App\Events\BaseRecord;
 use App\SerializerFactory;
 use AvroSchema;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
-
-use \RdKafka\Producer as KafkaProducer;
+use RdKafka\Producer as KafkaProducer;
 
 
 class Producer
 {
+
     private $config;
 
     private $serializer;
@@ -41,11 +41,6 @@ class Producer
     private function createKafkaProducer(): KafkaProducer
     {
         $producer = new KafkaProducer($this->config);
-
-        $brokers = $this->config->getBrokers();
-        if ($brokers) {
-            $producer->addBrokers($brokers);
-        }
 
         $logLevel = $this->config->getLogLevel();
         if ($logLevel) {
