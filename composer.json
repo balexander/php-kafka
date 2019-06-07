@@ -1,5 +1,5 @@
 {
-  "name": "storyblocks/kafka-php",
+  "name": "balexander/php-kafka",
   "description": "Kafka PHP produce and consumer.",
   "minimum-stability": "dev",
   "prefer-stable": true,
