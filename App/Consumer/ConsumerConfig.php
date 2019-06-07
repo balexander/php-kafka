@@ -8,12 +8,12 @@ use RdKafka\TopicConf;
 class ConsumerConfig extends Config
 {
 
-    //    protected const DEFAULT_PARTITION = 0;
-
     protected const DEFAULT_OFFSET = RD_KAFKA_OFFSET_BEGINNING;
 
     // todo - what is a sane default timeout?
     protected const DEFAULT_TIMEOUT = 10000;
+
+    protected const DEFAULT_OFfSET_RESET = 'smallest';
 
     private $partition;
 
@@ -23,13 +23,19 @@ class ConsumerConfig extends Config
 
     private $groupId;
 
-    public function __construct(string $schemaRegistryUri, string $brokers, TopicConf $defaultTopicConfig = null)
-    {
+    private $offsetReset;
+
+    public function __construct(
+      string $groupId,
+      $schemaRegistryUri,
+      string $brokers,
+      TopicConf $defaultTopicConfig = null
+    ) {
         //Ignore IDE squiggly, there is a constructor its just not int he stub extension
         parent::__construct($schemaRegistryUri, $brokers);
         $defaultTopicConfig = $defaultTopicConfig ?? $this->createDefaultTopicConfig();
         $this->setDefaultTopicConf($defaultTopicConfig);
-
+        $this->setGroupId($groupId);
     }
 
     public function setPartition(int $partition)
@@ -60,13 +66,14 @@ class ConsumerConfig extends Config
         return $this;
     }
 
-    //    public function
-    // todo -- move  this
-    private function createDefaultTopicConfig(): TopicConf
+    public function setOffsetReset(string $reset)
     {
-        $topicConfig = new TopicConf();
-        $topicConfig->set('auto.offset.reset', 'smallest');
-        return $topicConfig;
+        $this->offsetReset = $reset;
+    }
+
+    public function getOffsetReset(): string
+    {
+        return $this->offsetReset ?? static::DEFAULT_OFfSET_RESET;
     }
 
     public function getGroupId(): string
@@ -79,6 +86,13 @@ class ConsumerConfig extends Config
         $this->groupId = $groupId;
         $this->set('group.id', $groupId);
         return $this;
+    }
+
+    private function createDefaultTopicConfig(): TopicConf
+    {
+        $topicConfig = new TopicConf();
+        $topicConfig->set('auto.offset.reset', $this->getOffsetReset());
+        return $topicConfig;
     }
 
 }

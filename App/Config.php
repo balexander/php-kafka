@@ -4,6 +4,8 @@ namespace App;
 
 use RdKafka\Conf as KafkaConfig;
 
+// https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
+
 class Config extends KafkaConfig
 {
 

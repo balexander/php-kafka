@@ -7,6 +7,7 @@ use App\SerializerFactory;
 use AvroSchema;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use RdKafka\Producer as KafkaProducer;
+use RdKafka\Topic;
 
 
 class Producer
@@ -37,6 +38,11 @@ class Producer
         );
         $this->kafkaProducer->poll(0);
 
+    }
+
+    public function getMetaData(bool $allTopics, ?Topic $onlyTopic, int $timeoutMs)
+    {
+        return $this->kafkaProducer->getMetadata($allTopics, $onlyTopic, $timeoutMs);
     }
 
     private function createKafkaProducer(): KafkaProducer

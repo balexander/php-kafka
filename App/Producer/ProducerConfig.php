@@ -81,6 +81,12 @@ class ProducerConfig extends Config
         return $this;
     }
 
+    // Signature of the callback function is function (RdKafka\RdKafka $kafka, RdKafka\Message $message);
+    public function setDeliveryReportCallback(callable $callback): void
+    {
+        $this->setDrMsgCb($callback);
+    }
+
     public function getAckLevel(): int
     {
         return $this->ackLevel ?? self::DEFAULT_ACK_LEVEL;

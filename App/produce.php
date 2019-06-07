@@ -9,23 +9,27 @@ use App\Producer\Producer;
 use App\Producer\ProducerConfig;
 use DateTime;
 use Faker\Factory;
+use RdKafka;
+use RdKafka\Message;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 
 function produce()
 {
-    //    $topic = 'user-event';
-    $topic = 'user-mult';
+    $topic = 'newtopic';
     $config = new ProducerConfig('schema-registry:8081', 'broker');
     $config->setShouldRegisterMissingSchemas(true);
     $config->setShouldRegisterMissingSubjects(true);
-
+    $config->setDrMsgCb(function (RdKafka $kafka, Message $message)
+    {
+        var_dump($message);
+    });
     $producer = new Producer($config);
 
     $faker = Factory::create();
 
-    for ($i = 1; $i < 25; $i++) {
+    for ($i = 1; $i <= 10; $i++) {
         $date = new DateTime();
         $d = $date->format('Y-m-d H:i:s');
         echo "Producing topic: $topic" . PHP_EOL;
