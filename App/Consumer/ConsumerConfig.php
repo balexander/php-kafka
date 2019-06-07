@@ -13,7 +13,7 @@ class ConsumerConfig extends Config
     protected const DEFAULT_OFFSET = RD_KAFKA_OFFSET_BEGINNING;
 
     // todo - what is a sane default timeout?
-    protected const DEFAULT_TIMEOUT = 1000;
+    protected const DEFAULT_TIMEOUT = 10000;
 
     private $partition;
 
@@ -29,6 +29,7 @@ class ConsumerConfig extends Config
         parent::__construct($schemaRegistryUri, $brokers);
         $defaultTopicConfig = $defaultTopicConfig ?? $this->createDefaultTopicConfig();
         $this->setDefaultTopicConf($defaultTopicConfig);
+
     }
 
     public function setPartition(int $partition)

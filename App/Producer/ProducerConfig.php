@@ -7,6 +7,12 @@ use App\Config;
 class ProducerConfig extends Config
 {
 
+    public const ACK_LEVEL_NONe = 0;
+
+    public const ACK_LEVEL_ALL = -1;
+
+    public const DEFAULT_ACK_LEVEL = self::ACK_LEVEL_ALL;
+
     protected const DEFAULT_PARTITION = RD_KAFKA_PARTITION_UA;
 
     /**
@@ -31,6 +37,8 @@ class ProducerConfig extends Config
     private $partition;
 
     private $messageFlag;
+
+    private $ackLevel;
 
     public function __construct(string $schemaRegistryUri, string $brokers)
     {
@@ -65,10 +73,23 @@ class ProducerConfig extends Config
         return $this->messageFlag ?? static::DEFAULT_MESSAGE_FLAG;
     }
 
+
     public function setMessageFlag($messageFlag)
     {
         // todo -- validation
         $this->messageFlag = $messageFlag;
+        return $this;
+    }
+
+    public function getAckLevel(): int
+    {
+        return $this->ackLevel ?? self::DEFAULT_ACK_LEVEL;
+    }
+
+    public function setAckLevel(int $ackLevel)
+    {
+        $this->set('ack', $ackLevel);
+        $this->ackLevel = $ackLevel;
         return $this;
     }
 }

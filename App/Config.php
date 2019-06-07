@@ -17,7 +17,6 @@ class Config extends KafkaConfig
 
     protected $shouldRegisterMissingSubjects = false;
 
-    // todo -- option to set default brokers using metadata.broker.list
     public function __construct(string $schemaRegistryUri, string $brokers)
     {
         //Ignore IDE squiggly, there is a constructor its just not int he stub extension

@@ -35,6 +35,7 @@ class Producer
           $encodedRecord,
           $record->getKey()
         );
+        $this->kafkaProducer->poll(0);
 
     }
 

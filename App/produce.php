@@ -25,14 +25,14 @@ function produce()
 
     $faker = Factory::create();
 
-    for ($i = 1; $i < 50; $i++) {
+    for ($i = 1; $i < 25; $i++) {
         $date = new DateTime();
         $d = $date->format('Y-m-d H:i:s');
         echo "Producing topic: $topic" . PHP_EOL;
         $meta1 = (new SharedMeta())->setUuid($d . '-' . $i);
         $userEventV1 = (new UserEvent())->setUserId($faker->randomDigit)->setMeta($meta1);
         $producer->fire($topic, $userEventV1);
-        $producer->fire($topic, $meta1);
+        //        $producer->fire($topic, $meta1);
     }
 }
 
