@@ -2,63 +2,42 @@
 
 namespace App\Producer;
 
-use RdKafka\Conf as KafkaProducerConfig;
+use App\Config;
+use RdKafka\Conf as KafkaConfig;
 
-class ProducerConfig extends KafkaProducerConfig
+class ProducerConfig extends Config
 {
 
     protected const DEFAULT_PARTITION = RD_KAFKA_PARTITION_UA;
 
-    private $schemaRegistryUri;
+    /**
+     *
+     * todo -- look into these options more.
+     * msgflags - 0, or one of:
 
-    private $brokers;
+    RD_KAFKA_MSG_F_COPY - librdkafka will immediately make a copy of the payload. Use this when the payload is in non-persistent memory, such as the stack.
+    RD_KAFKA_MSG_F_FREE - let librdkafka free the payload using free(3) when it is done with it.
+    These two flags are mutually exclusive and neither need to be set in which case the payload is neither copied nor freed by librdkafka.
 
-    private $kafkaProducerConfig;
+    If RD_KAFKA_MSG_F_COPY flag is not set no data copying will be performed and librdkafka will hold on the payload pointer until the message has been delivered or fails. The delivery report callback will be called when librdkafka is done with the message to let the application regain ownership of the payload memory. The application must not free the payload in the delivery report callback if RD_KAFKA_MSG_F_FREE is set.
 
-    private $registerMissingSchemas = false;
 
-    private $registerMissingSubjects = false;
+     */
+    protected const DEFAULT_MESSAGE_FLAG = 0;
 
     private $logLevel;
 
     private $partition;
 
+    private $messageFlag;
+
     public function __construct(
       string $schemaRegistryUri,
-      string $brokers,
-      KafkaProducerConfig $kafkaProducerConfig = null
+      string $brokers
+//      KafkaConfig $kafkaConfig = null
     ) {
         //Ignore IDE squiggly, there is a constructor its just not int he stub extension
-        parent::__construct();
-        $this->schemaRegistryUri = $schemaRegistryUri;
-        $this->brokers = $brokers;
-        $this->kafkaProducerConfig = $kafkaProducerConfig;
-
-    }
-
-    public function getSchemaRegistryUri(): string
-    {
-        return $this->schemaRegistryUri;
-    }
-
-    public function getBrokers(): string
-    {
-        return $this->brokers;
-    }
-
-    public function getKafkaProducerConfig(): KafkaProducerConfig
-    {
-        return $this->kafkaProducerConfig;
-    }
-
-    public function shouldRegisterMissingSchemas(bool $registerMissingSchemas = null): bool
-    {
-        return $this->registerMissingSchemas = $registerMissingSchemas ?? $this->registerMissingSchemas;
-    }
-
-    public function shouldRegisterMissingSubjects(bool $registerMissingSubjects = null): bool
-    {
-        return $this->registerMissingSubjects = $registerMissingSubjects ?? $this->registerMissingSubjects;
+        parent::__construct($schemaRegistryUri, $brokers);
     }
 
     public function getLogLevel(): ?int
@@ -80,6 +59,18 @@ class ProducerConfig extends KafkaProducerConfig
     public function setPartition(int $partition)
     {
         $this->partition = $partition;
+        return $this;
+    }
+
+    public function getMessageFlag(): int
+    {
+        return $this->messageFlag ?? static::DEFAULT_MESSAGE_FLAG;
+    }
+
+    public function setMessageFlag($messageFlag)
+    {
+        // todo -- validation
+        $this->messageFlag = $messageFlag;
         return $this;
     }
 }

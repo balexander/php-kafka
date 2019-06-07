@@ -3,6 +3,7 @@
 namespace App\Producer;
 
 use App\Events\BaseRecord;
+use App\SerializerFactory;
 use AvroSchema;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 
@@ -11,8 +12,6 @@ use \RdKafka\Producer as KafkaProducer;
 
 class Producer
 {
-
-
     private $config;
 
     private $serializer;
@@ -22,7 +21,7 @@ class Producer
     public function __construct(ProducerConfig $config, RecordSerializer $serializer = null)
     {
         $this->config = $config;
-        $this->serializer = $serializer;
+        $this->serializer = $serializer ?? (new SerializerFactory($config))->instance();
         $this->kafkaProducer = $this->createKafkaProducer();
     }
 
@@ -30,7 +29,12 @@ class Producer
     {
         $topicProducer = $this->kafkaProducer->newTopic($topic);
         $encodedRecord = $this->encodeRecord($record);
-        $topicProducer->produce(RD_KAFKA_PARTITION_UA, 0, $encodedRecord, $record->getKey());
+        $topicProducer->produce(
+          $this->config->getPartition(),
+          $this->config->getMessageFlag(),
+          $encodedRecord,
+          $record->getKey()
+        );
 
     }
 
