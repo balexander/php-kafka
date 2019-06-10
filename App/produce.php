@@ -19,13 +19,16 @@ function produce()
 {
     $topic = 'newtopic';
     $config = new ProducerConfig('schema-registry:8081', 'broker');
+
     $config->setShouldRegisterMissingSchemas(true);
     $config->setShouldRegisterMissingSubjects(true);
     $config->setDrMsgCb(function (RdKafka $kafka, Message $message)
     {
+        $message->err;
         var_dump($message);
     });
     $producer = new Producer($config);
+
 
     $faker = Factory::create();
 
@@ -35,8 +38,8 @@ function produce()
         echo "Producing topic: $topic" . PHP_EOL;
         $meta1 = (new SharedMeta())->setUuid($d . '-' . $i);
         $userEventV1 = (new UserEvent())->setUserId($faker->randomDigit)->setMeta($meta1);
+
         $producer->fire($topic, $userEventV1);
-        //        $producer->fire($topic, $meta1);
     }
 }
 

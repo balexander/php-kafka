@@ -18,6 +18,7 @@ function consume()
     echo 'Consuming topics: ' . implode(',', $topics) . PHP_EOL;
 
     $consumer = new Consumer($config, $topics);
+
     $consumer->onSuccess(function (UserEvent $userEvent)
     {
         return json_encode($userEvent, JSON_PRETTY_PRINT) . PHP_EOL;

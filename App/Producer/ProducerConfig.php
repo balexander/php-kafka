@@ -7,7 +7,7 @@ use App\Config;
 class ProducerConfig extends Config
 {
 
-    public const ACK_LEVEL_NONe = 0;
+    public const ACK_LEVEL_NONE = 0;
 
     public const ACK_LEVEL_ALL = -1;
 
